@@ -1,0 +1,1 @@
+ACTION=="remove", SUBSYSTEM=="usb", ENV{PRODUCT}=="SOLOKEY_PRODUCT_ID", RUN+="/usr/local/bin/solo"
