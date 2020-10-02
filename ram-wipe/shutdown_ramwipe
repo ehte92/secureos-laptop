@@ -1,0 +1,17 @@
+#!/bin/sh
+
+# Wipes the system's RAM before shutting down in
+# order to reduce the risk of cold-boot attacks.
+
+shutdown_ramwipe() {
+  echo 3   > /proc/sys/kernel/printk
+  echo 3   > /proc/sys/vm/drop_caches
+  echo 256 > /proc/sys/vm/min_free_kbytes
+  echo 1   > /proc/sys/vm/overcommit_memory
+  echo 1   > /proc/sys/vm/oom_kill_allocating_task
+  echo 0   > /proc/sys/vm/oom_dump_tasks
+
+  /usr/bin/smem -v -ll
+}
+
+shutdown_ramwipe;
