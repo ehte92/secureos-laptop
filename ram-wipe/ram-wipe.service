@@ -1,0 +1,11 @@
+[Unit]
+Description=RAM Wipe
+Before=shutdown.target
+
+[Service]
+ExecStart=/bin/true
+ExecStop=/usr/local/bin/shutdown_ramwipe
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
