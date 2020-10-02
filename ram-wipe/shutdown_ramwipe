@@ -11,7 +11,7 @@ shutdown_ramwipe() {
   echo 1   > /proc/sys/vm/oom_kill_allocating_task
   echo 0   > /proc/sys/vm/oom_dump_tasks
 
-  /usr/bin/smem -v -ll
+  /usr/bin/sdmem -v -ll
 }
 
 shutdown_ramwipe;
