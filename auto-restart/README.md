@@ -15,8 +15,8 @@ Replace the `SOLOKEY_PRODUCT_ID` with value of `PRODUCT` in 85-remove-solokey.ru
 You can copy the udev rules and script to the system,
 
     cp 85-remove-solokey.rules /etc/udev/rules.d/
-    cp solo /usr/local/bin/
-    chmod +x /usr/local/bin/solo
+    cp solo-restart /usr/local/bin/
+    chmod +x /usr/local/bin/solo-restart
 
 Reload the udev rules,
 
@@ -30,8 +30,8 @@ Now you can remove the SoloKey device and system should auto restart.
 Copy the udev rules,
 
     cp 85-remove-usb.rules /etc/udev/rules.d/
-    cp solo /usr/local/bin/
-    chmod +x /usr/local/bin/solo
+    cp solo-restart /usr/local/bin/
+    chmod +x /usr/local/bin/solo-restart
 
 Reload the udev rules,
 
