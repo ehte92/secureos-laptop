@@ -1,0 +1,29 @@
+#!/bin/bash
+
+set -euo pipefail
+
+## Functions
+
+cecho() {
+  GREEN='\033[0;32m'
+  NC='\033[0m'
+  echo -e "${GREEN}=== $1 ===${NC}"
+}
+
+arch_install() {
+  cecho "Install arch"
+}
+
+## Main
+
+case "$1" in
+  install)
+    arch_install;
+    ;;
+  secureboot)
+    enable_secureboot;
+    ;;
+  *)
+    echo "  install     Arch Linux Installation with LUKS"
+    echo "  secureboot  Enable Secure Boot in UEFI"
+esac
