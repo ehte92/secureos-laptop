@@ -2,6 +2,9 @@
 
 set -euo pipefail
 
+## Variables
+DISK="/dev/sda"
+HOSTNAME="Arch"
 ## Functions
 
 cecho() {
@@ -10,15 +13,118 @@ cecho() {
   echo -e "${GREEN}=== $1 ===${NC}"
 }
 
-arch_install() {
-  cecho "Install arch"
+arch_install_before_chroot() {
+
+  cecho "Install Arch Linux"
+
+  cecho "Partitioning the disk"
+  parted -s $DISK \
+    mklabel gpt \
+    mkpart ESP 1MiB 256MiB \
+    mkpart primary 256MiB 768MiB \
+    mkpart primary 768MiB 100%
+
+  cecho "Load the dm-crypt and dm-mod kernel module"
+  modprobe dm-crypt
+  modprobe dm-mod
+
+  cecho "Encrypt the boot partition"
+  cecho "Please provide the passphrase to encrypt the boot partition"
+  cryptsetup luksFormat --type luks1 /dev/sda2
+
+  cecho "Open the encrypted boot partition"
+  cecho "Please provide the passphrase to open the encrypted boot partition"
+  cryptsetup open /dev/sda2 luks_boot
+
+  cecho "Encrypt the root partition"
+  cecho "Please provide the passphrase to encrypt the root partition"
+  cryptsetup luksFormat -v -s 512 -h sha512 /dev/sda3
+
+  cecho "Open the encrypted root partition"
+  cecho "Please provide the passphrase to open the encrypted root partition"
+  cryptsetup open /dev/sda3 luks_root
+
+  cecho "Format the Partitions"
+  mkfs.vfat -n "EFI System Partition" /dev/sda1
+  mkfs.ext4 -L boot /dev/mapper/luks_boot
+  mkfs.ext4 -L root /dev/mapper/luks_root
+
+  cecho "Mount the Partitions"
+  mount /dev/mapper/luks_root /mnt
+  mkdir /mnt/boot
+  mount /dev/mapper/luks_boot /mnt/boot
+  mkdir /mnt/boot/efi
+  mount /dev/sda1 /mnt/boot/efi
+
+  cecho "Configure the Wi-Fi network"
+  cecho "Choose your wifi network and enable it"
+  wifi-menu
+
+  cecho "Install the linux packages"
+  pacstrap -i /mnt base linux linux-firmware
+
+  cecho "Generate the fstab configuration file"
+  genfstab -U /mnt > /mnt/etc/fstab
+
+  cecho "chroot into the root partition"
+  arch-chroot /mnt
+
+}
+
+arch_install_after_chroot() {
+
+  cecho "Install the necessary packages"
+  pacman-key --refresh-keys
+  pacman -S base-devel efibootmgr grub vim networkmanager
+
+  cecho "Configure root password"
+  read -s -p "Enter the password for root user: " PASSWD
+  echo $PASSWD | passwd --stdin
+
+  cecho "Configure the locale settings"
+  sed -i '/^#en_US.UTF-8 UTF-8/s/^#//' /etc/locale.gen
+  locale-gen
+  echo LANG=en_US.UTF-8 > /etc/locale.conf
+  export LANG=en_US.UTF-8
+
+  cecho "Configure the timezone settings"
+  ln -sf /usr/share/zoneinfo/Asia/Dubai /etc/localtime
+  hwclock --systohc --utc
+
+  cecho "set hostname and hosts file"
+  echo $HOSTNAME > /etc/hostname
+  echo "127.0.0.1 localhost" > /etc/hosts
+  echo "::1 localhost" >> /etc/hosts
+
+  cecho "Configure GRUB settings with LUKS encryption"
+  sed -i 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="cryptdevice=/dev/sda3:luks_root"/g' /etc/default/grub
+  sed -i '/^#GRUB_ENABLE_CRYPTODISK/s/^#//' /etc/default/grub
+
+  cecho "Enable luks in mkinitcpio"
+  sed -i '/^HOOKS/s/block /block encrypt /' /etc/mkinitcpio.conf
+  mkinitcpio -p linux
+
+  cecho "Install and configure the GRUB"
+  grub-install --target=x86_64-efi --boot-directory=/boot --efi-directory=/boot/efi --bootloader-id=grub --recheck
+  grub-mkconfig -o /boot/grub/grub.cfg
+  chmod 700 /boot
+
+  cecho "Enable network manager"
+  systemctl enable NetworkManager
+
+  cecho "Exit from chroot"
+  exit
+
 }
 
 ## Main
 
 case "$1" in
   install)
-    arch_install;
+    arch_install_before_chroot;
+    ;;
+  install-chroot)
+    arch_install_after_chroot;
     ;;
   secureboot)
     enable_secureboot;
