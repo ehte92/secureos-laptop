@@ -56,10 +56,6 @@ arch_install_before_chroot() {
   mkdir /mnt/boot/efi
   mount /dev/sda1 /mnt/boot/efi
 
-  cecho "Configure the Wi-Fi network"
-  cecho "Choose your wifi network and enable it"
-  wifi-menu
-
   cecho "Install the linux packages"
   pacstrap -i /mnt base linux linux-firmware
 
@@ -130,6 +126,7 @@ case "$1" in
     enable_secureboot;
     ;;
   *)
-    echo "  install     Arch Linux Installation with LUKS"
+    echo "  install     Arch Linux Installation with LUKS - Part 1"
+    echo "  install-chroot     Arch Linux Installation with LUKS - Part 2"
     echo "  secureboot  Enable Secure Boot in UEFI"
 esac
