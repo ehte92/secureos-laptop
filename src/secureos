@@ -21,8 +21,12 @@ arch_install_before_chroot() {
   parted -s $DISK \
     mklabel gpt \
     mkpart ESP 1MiB 256MiB \
-    mkpart primary 256MiB 768MiB \
-    mkpart primary 768MiB 100%
+    set 1 esp on \
+    mkpart boot 256MiB 768MiB \
+    mkpart root 768MiB 100%
+
+  cecho "List the Partitions"
+  fdisk -l
 
   cecho "Load the dm-crypt and dm-mod kernel module"
   modprobe dm-crypt
