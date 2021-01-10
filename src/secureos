@@ -77,8 +77,8 @@ arch_install_after_chroot() {
   pacman -S base-devel efibootmgr grub vim networkmanager
 
   cecho "Configure root password"
-  read -s -p "Enter the password for root user: " PASSWD
-  echo $PASSWD | passwd --stdin ## error
+  "Enter the password for root user"
+  passwd
 
   cecho "Configure the locale settings"
   sed -i '/^#en_US.UTF-8 UTF-8/s/^#//' /etc/locale.gen
