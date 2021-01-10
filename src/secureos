@@ -66,8 +66,7 @@ arch_install_before_chroot() {
   cecho "Generate the fstab configuration file"
   genfstab -U /mnt > /mnt/etc/fstab
 
-  cecho "chroot into the root partition"
-  arch-chroot /mnt
+  cecho "chroot into the '/mnt' and Run 'secureos install-chroot'"
 
 }
 
@@ -79,7 +78,7 @@ arch_install_after_chroot() {
 
   cecho "Configure root password"
   read -s -p "Enter the password for root user: " PASSWD
-  echo $PASSWD | passwd --stdin
+  echo $PASSWD | passwd --stdin ## error
 
   cecho "Configure the locale settings"
   sed -i '/^#en_US.UTF-8 UTF-8/s/^#//' /etc/locale.gen
@@ -97,7 +96,7 @@ arch_install_after_chroot() {
   echo "::1 localhost" >> /etc/hosts
 
   cecho "Configure GRUB settings with LUKS encryption"
-  sed -i 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="cryptdevice=/dev/sda3:luks_root"/g' /etc/default/grub
+  sed -i 's,GRUB_CMDLINE_LINUX="",GRUB_CMDLINE_LINUX="cryptdevice=/dev/sda3:luks_root",g' /etc/default/grub
   sed -i '/^#GRUB_ENABLE_CRYPTODISK/s/^#//' /etc/default/grub
 
   cecho "Enable luks in mkinitcpio"
