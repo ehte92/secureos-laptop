@@ -127,6 +127,39 @@ usb_auto_restart() {
   systemctl reload systemd-udevd
 }
 
+wipe_ram() {
+  cecho "Setup the ArchStrike repository"
+  echo "[archstrike]" >> /etc/pacman.conf
+  echo "Server = https://mirror.archstrike.org/$arch/$repo" >> /etc/pacman.conf
+  pacman -Syy
+
+  cecho "Install the ArchStrike keyring"
+  pacman-key --init
+  dirmngr < /dev/null
+  wget https://archstrike.org/keyfile.asc
+  pacman-key --add keyfile.asc
+  pacman-key --lsign-key 9D5F1C051D146843CDA4858BDE64825E7CBC0D51
+
+  pacman -S archstrike-keyring
+  pacman -S archstrike-mirrorlist
+  sed -i 's,Server = https://mirror.archstrike.org/$arch/$repo,Include = /etc/pacman.d/archstrike-mirrorlist,g' /etc/pacman.conf
+  pacman -Syy
+
+  cecho "Install the secure-delete package"
+  pacman -S secure-delete
+
+  cecho "Copy the RAM wipe script"
+  cp ram-wipe/shutdown_ramwipe /usr/local/bin/
+  chmod +x /usr/local/bin/shutdown_ramwipe
+
+  cecho "Configure the RAM wipe systemd service"
+  cp ram-wipe/ram-wipe.service /usr/lib/systemd/system/
+  systemctl daemon-reload
+  systemctl enable ram-wipe.service
+  systemctl start ram-wipe.service
+
+}
+
 ## Main
 
 case "$1" in
@@ -142,9 +175,13 @@ case "$1" in
   usb-auto-reboot)
     usb_auto_restart;
     ;;
+  ram-wipe)
+    wipe_ram;
+    ;;
   *)
     echo "  install     Arch Linux Installation with LUKS - Part 1"
     echo "  install-chroot     Arch Linux Installation with LUKS - Part 2"
-    echo "  secureboot  Enable Secure Boot in UEFI"
+    echo "  secureboot    Enable Secure Boot in UEFI"
     echo "  usb-auto-reboot   Automatically reboot if any USB device is removed"
+    echo "  ram-wipe    Wipe the RAM during shutdown and reboot"
 esac
