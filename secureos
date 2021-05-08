@@ -77,7 +77,7 @@ arch_install_after_chroot() {
   pacman -S base-devel efibootmgr grub vim networkmanager
 
   cecho "Configure root password"
-  "Enter the password for root user"
+  cecho "Enter the password for root user"
   passwd
 
   cecho "Configure the locale settings"
@@ -116,6 +116,17 @@ arch_install_after_chroot() {
 
 }
 
+usb_auto_restart() {
+  cecho "Copy the udev rules"
+  cp auto-restart/85-remove-usb.rules /etc/udev/rules.d/
+  cp auto-restart/solo-restart /usr/local/bin/
+  chmod +x /usr/local/bin/solo-restart
+
+  cecho "Reload the udev rules"
+  udevadm control --reload-rules
+  systemctl reload systemd-udevd
+}
+
 ## Main
 
 case "$1" in
@@ -128,8 +139,12 @@ case "$1" in
   secureboot)
     enable_secureboot;
     ;;
+  usb-auto-reboot)
+    usb_auto_restart;
+    ;;
   *)
     echo "  install     Arch Linux Installation with LUKS - Part 1"
     echo "  install-chroot     Arch Linux Installation with LUKS - Part 2"
     echo "  secureboot  Enable Secure Boot in UEFI"
+    echo "  usb-auto-reboot   Automatically reboot if any USB device is removed"
 esac
