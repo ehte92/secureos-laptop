@@ -160,6 +160,15 @@ wipe_ram() {
 
 }
 
+random_mac() {
+  cecho "Copy the configuration file"
+  cp random-mac/random_mac.conf /etc/NetworkManager/conf.d/
+
+  cecho "Reload the NetworkManager service"
+  systemctl restart NetworkManager
+}
+
+
 ## Main
 
 case "$1" in
@@ -178,10 +187,14 @@ case "$1" in
   ram-wipe)
     wipe_ram;
     ;;
+  random-mac)
+    random_mac;
+    ;;
   *)
     echo "  install     Arch Linux Installation with LUKS - Part 1"
     echo "  install-chroot     Arch Linux Installation with LUKS - Part 2"
     echo "  secureboot    Enable Secure Boot in UEFI"
     echo "  usb-auto-reboot   Automatically reboot if any USB device is removed"
     echo "  ram-wipe    Wipe the RAM during shutdown and reboot"
+    echo "  random-mac    Configure MAC address randomization"
 esac
