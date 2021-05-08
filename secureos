@@ -168,6 +168,30 @@ random_mac() {
   systemctl restart NetworkManager
 }
 
+uefi_secure_boot() {
+  read -p "Did you enable the secure boot in BIOS settings? (yes / no): " secure
+
+  if [ "$secure" == "yes" ]; then
+    cecho "Install the secure boot tool"
+    pacman -S efitools sbsigntools
+    git clone https://github.com/saravanan30erd/secureboot
+    cd secureboot
+    make install
+
+    cecho "Generate the UEFI secure boot keys"
+    secureboot generate-keys
+    cecho "Enrolling secure boot keys in UEFI firmware"
+    secureboot enroll-keys
+    cecho "Signing the boot loader with secure boot keys"
+    secureboot sign-keys
+    cecho "Verify the signed boot loader"
+    secureboot verify-bootloader
+  else
+    cecho "!!! Please enable the secure boot in BIOS settings !!!"
+    exit 1
+  fi
+}
+
 
 ## Main
 
@@ -190,11 +214,15 @@ case "$1" in
   random-mac)
     random_mac;
     ;;
+  secure-boot)
+    uefi_secure_boot;
+    ;;
   *)
     echo "  install     Arch Linux Installation with LUKS - Part 1"
     echo "  install-chroot     Arch Linux Installation with LUKS - Part 2"
-    echo "  secureboot    Enable Secure Boot in UEFI"
+    echo "  secure-boot    Enable Secure Boot in UEFI"
     echo "  usb-auto-reboot   Automatically reboot if any USB device is removed"
     echo "  ram-wipe    Wipe the RAM during shutdown and reboot"
     echo "  random-mac    Configure MAC address randomization"
+    ;;
 esac
