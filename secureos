@@ -210,7 +210,36 @@ boot_partition_tpm2luks() {
 }
 
 root_partition_solokey() {
-  
+  cecho "Install the solokey dependency tool"
+  pacman -S clang cargo git
+  git clone https://github.com/shimunn/fido2luks
+  cd fido2luks
+  cargo install -f --path . --root /usr
+  cd ../
+  rustup install stable
+  rustup default stable
+
+  cecho "Install the solokey tool"
+  git clone https://github.com/saravanan30erd/solokey-full-disk-encryption
+  cd solokey-full-disk-encryption
+  make install
+
+  cecho "Configure the solokey configuration file"
+  skfde-cred > cred.txt
+  CREDENTIAL="$(cat cred.txt | grep 'SoloKey credential :' | awk '{print $4}')"
+  sed -i 's/SKFDE_CREDENTIAL=""/SKFDE_CREDENTIAL=$CREDENTIAL/' src/skfde.conf
+
+  CHALLENGE="$(openssl rand -base64 12)"
+  sed -i 's/SKFDE_CHALLENGE=""/SKFDE_CHALLENGE=$CHALLENGE/' src/skfde.conf
+
+  sed -i 's/SKFDE_LUKS_DEV=""/SKFDE_LUKS_DEV="/dev/sda3"/' src/skfde.conf
+
+  cecho "Enroll solokey passphrase to existing LUKS encrypted volume"
+  skfde-enroll -d /dev/sda3
+
+  cecho "Enable skfde initramfs hook"
+  sed -i '/^HOOKS/s/encrypt /encrypt skfde /' /etc/mkinitcpio.conf
+  skfde-load
 }
 
 ## Main
