@@ -15,7 +15,7 @@ by pressing `F12`.
 4. Clone the SecureOS script in the system.
 You need to configure the Wi-Fi using wifi-menu command.
 ```
-wifi-menu
+  wifi-menu
 ```
 ```
   git clone https://github.com/saravanan30erd/SecureOS
