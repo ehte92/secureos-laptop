@@ -13,6 +13,10 @@ by pressing `F12`.
 3. You should be logged into the Arch Linux console. You can install Arch Linux from here.
 
 4. Clone the SecureOS script in the system.
+You need to configure the Wi-Fi using wifi-menu command.
+```
+wifi-menu
+```
 ```
   git clone https://github.com/saravanan30erd/SecureOS
   cd SecureOS
