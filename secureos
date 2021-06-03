@@ -49,7 +49,7 @@ arch_install_before_chroot() {
   cryptsetup open /dev/sda3 luks_root
 
   cecho "Format the Partitions"
-  mkfs.vfat -n "EFI System Partition" /dev/sda1
+  mkfs.vfat -n "EFI" /dev/sda1
   mkfs.ext4 -L boot /dev/mapper/luks_boot
   mkfs.ext4 -L root /dev/mapper/luks_root
 
@@ -78,7 +78,6 @@ arch_install_before_chroot() {
 arch_install_after_chroot() {
 
   cecho "Install the necessary packages"
-  pacman-key --refresh-keys
   pacman -S base-devel efibootmgr grub vim networkmanager
 
   cecho "Configure root password"
@@ -111,13 +110,20 @@ arch_install_after_chroot() {
   cecho "Install and configure the GRUB"
   grub-install --target=x86_64-efi --boot-directory=/boot --efi-directory=/boot/efi --bootloader-id=grub --recheck
   grub-mkconfig -o /boot/grub/grub.cfg
+
+  cecho "It is necessary to unlock the boot partition without manual password request"
+  dd bs=512 count=8 if=/dev/urandom of=/etc/key
+  chmod 400 /etc/key
+  cryptsetup luksAddKey /dev/sda2 /etc/key
+  echo "luks_boot /dev/sda2 /etc/key luks" >> /etc/crypttab
+
+  cecho "Some additional security"
   chmod 700 /boot
 
   cecho "Enable network manager"
   systemctl enable NetworkManager
 
-  cecho "Exit from chroot"
-  exit
+  cecho "Press exit from chroot"
 
 }
 

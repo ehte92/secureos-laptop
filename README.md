@@ -30,7 +30,7 @@ You need to configure the Wi-Fi using wifi-menu command.
 
 6. Arch Linux Installation after chroot.
 ```
-  
+  arch-chroot /mnt
   ./secureos install-chroot
 ```
 
