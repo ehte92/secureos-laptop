@@ -61,6 +61,7 @@ arch_install_before_chroot() {
   mount /dev/sda1 /mnt/boot/efi
 
   cecho "Install the linux packages"
+  pacman-key --refresh-keys
   pacstrap -i /mnt base linux linux-firmware
 
   cecho "Generate the fstab configuration file"

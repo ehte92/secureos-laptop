@@ -20,6 +20,7 @@ You need to configure the Wi-Fi using wifi-menu command.
 ```
   git clone https://github.com/saravanan30erd/SecureOS
   cd SecureOS
+  chmod +x secureos
 ```
 
 5. Arch Linux Installation before chroot.
@@ -29,6 +30,7 @@ You need to configure the Wi-Fi using wifi-menu command.
 
 6. Arch Linux Installation after chroot.
 ```
+  
   ./secureos install-chroot
 ```
 
