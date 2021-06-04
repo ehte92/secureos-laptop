@@ -78,7 +78,7 @@ arch_install_before_chroot() {
 arch_install_after_chroot() {
 
   cecho "Install the necessary packages"
-  pacman -S base-devel efibootmgr grub vim networkmanager
+  pacman -S base-devel efibootmgr grub vim networkmanager git glibc
 
   cecho "Configure root password"
   cecho "Enter the password for root user"
@@ -141,7 +141,7 @@ usb_auto_restart() {
 wipe_ram() {
   cecho "Setup the ArchStrike repository"
   echo "[archstrike]" >> /etc/pacman.conf
-  echo "Server = https://mirror.archstrike.org/$arch/$repo" >> /etc/pacman.conf
+  echo "Server = https://mirror.archstrike.org/\$arch/\$repo" >> /etc/pacman.conf
   pacman -Syy
 
   cecho "Install the ArchStrike keyring"

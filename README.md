@@ -12,11 +12,9 @@ by pressing `F12`.
 
 3. You should be logged into the Arch Linux console. You can install Arch Linux from here.
 
+Note: You need to use `nmcli` command to manually connect the Wi-Fi at this stage.
+
 4. Clone the SecureOS script in the system.
-You need to configure the Wi-Fi using wifi-menu command.
-```
-  wifi-menu
-```
 ```
   git clone https://github.com/saravanan30erd/SecureOS
   cd SecureOS
@@ -36,6 +34,8 @@ You need to configure the Wi-Fi using wifi-menu command.
 
 In this stage, Arch Linux Installation will be completed.
 Reboot the system and enter into the newly installed Arch Linux system.
+You can use `nmcli` command to manually connect the Wi-Fi at this stage.
+Also you need to repeat the step 4.
 
 7. Automatically reboot if any USB device is removed from the system.
 ```
