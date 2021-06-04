@@ -78,7 +78,7 @@ arch_install_before_chroot() {
 arch_install_after_chroot() {
 
   cecho "Install the necessary packages"
-  pacman -S base-devel efibootmgr grub vim networkmanager git glibc
+  pacman -S base-devel efibootmgr grub vim networkmanager git glibc wget
 
   cecho "Configure root password"
   cecho "Enter the password for root user"
