@@ -238,12 +238,12 @@ root_partition_solokey() {
   cecho "Configure the solokey configuration file"
   skfde-cred > cred.txt
   CREDENTIAL="$(cat cred.txt | grep 'SoloKey credential :' | awk '{print $4}')"
-  sed -i 's/SKFDE_CREDENTIAL=""/SKFDE_CREDENTIAL=$CREDENTIAL/' src/skfde.conf
+  sed -i 's/SKFDE_CREDENTIAL=""/SKFDE_CREDENTIAL=$CREDENTIAL/' /etc/skfde.conf
 
   CHALLENGE="$(openssl rand -base64 12)"
-  sed -i 's/SKFDE_CHALLENGE=""/SKFDE_CHALLENGE=$CHALLENGE/' src/skfde.conf
+  sed -i 's/SKFDE_CHALLENGE=""/SKFDE_CHALLENGE=$CHALLENGE/' /etc/skfde.conf
 
-  sed -i 's/SKFDE_LUKS_DEV=""/SKFDE_LUKS_DEV="/dev/sda3"/' src/skfde.conf
+  sed -i 's/SKFDE_LUKS_DEV=""/SKFDE_LUKS_DEV="/dev/sda3"/' /etc/skfde.conf
 
   cecho "Enroll solokey passphrase to existing LUKS encrypted volume"
   skfde-enroll -d /dev/sda3
