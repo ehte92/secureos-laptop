@@ -238,20 +238,29 @@ root_partition_solokey() {
   cecho "Configure the solokey configuration file"
   skfde-cred > cred.txt
   CREDENTIAL="$(cat cred.txt | grep 'SoloKey credential :' | awk '{print $4}')"
-  sed -i 's/SKFDE_CREDENTIAL=""/SKFDE_CREDENTIAL=$CREDENTIAL/' /etc/skfde.conf
+  sed -i "s/SKFDE_CREDENTIAL=\"\"/SKFDE_CREDENTIAL=$CREDENTIAL/" /etc/skfde.conf
 
   CHALLENGE="$(openssl rand -base64 12)"
-  sed -i 's/SKFDE_CHALLENGE=""/SKFDE_CHALLENGE=$CHALLENGE/' /etc/skfde.conf
+  sed -i "s/SKFDE_CHALLENGE=\"\"/SKFDE_CHALLENGE=$CHALLENGE/" /etc/skfde.conf
 
-  sed -i 's/SKFDE_LUKS_DEV=""/SKFDE_LUKS_DEV="/dev/sda3"/' /etc/skfde.conf
+  sed -i 's,SKFDE_LUKS_DEV="",SKFDE_LUKS_DEV="/dev/sda3",' /etc/skfde.conf
 
-  cecho "Enroll solokey passphrase to existing LUKS encrypted volume"
-  skfde-enroll -d /dev/sda3
+  cecho "Print skfde conf before proceed further"
+  cat /etc/skfde.conf
 
-  cecho "Enable skfde initramfs hook"
-  sed -i '/^HOOKS/s/encrypt /encrypt skfde /' /etc/mkinitcpio.conf
-  skfde-load
-  cd ../
+  read -p "Is it OK to proceed further? (yes / no): " success
+  if [ "$success" == "yes" ]; then
+    cecho "Enroll solokey passphrase to existing LUKS encrypted volume"
+    skfde-enroll -d /dev/sda3
+
+    cecho "Enable skfde initramfs hook"
+    sed -i '/^HOOKS/s/encrypt /encrypt skfde /' /etc/mkinitcpio.conf
+    skfde-load
+  else
+    cd ../
+    cecho "!!! Please check the skfde configuration !!!"
+    exit 1
+  fi
 }
 
 install_cinnamon_xorg() {
