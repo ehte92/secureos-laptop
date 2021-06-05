@@ -53,14 +53,17 @@ Also you need to repeat the step 4.
 ```
 
 10. Encrypt the root partition using SoloKey.
+Note: Refer [here](https://github.com/saravanan30erd/secureboot) for prerequisites
 ```
   ./secureos solokey
 ```
+Reboot and login the system using SoloKey
 
 11. Enable Secure Boot in UEFI.
 ```
   ./secureos secure-boot
 ```
+Reboot and verify the secure boot status using `bootctl status`
 
 12. Encrypt the boot partition using TPM 2.0.
 ```

@@ -197,27 +197,46 @@ uefi_secure_boot() {
     secureboot sign-keys
     cecho "Verify the signed boot loader"
     secureboot verify-bootloader
+    cd ../
   else
     cecho "!!! Please enable the secure boot in BIOS settings !!!"
+    cecho "Refer here: https://github.com/saravanan30erd/secureboot"
     exit 1
   fi
 }
 
 boot_partition_tpm2luks() {
-  cecho "Install the tpm 2.0 tools"
-  pacman -S tpm2-tools tpm2-tss tpm2-abrmd
-  git clone https://github.com/saravanan30erd/tpm2luks
-  cd tpm2luks
-  make install
+  read -p "Did you enable the TPM2.0 in BIOS settings? (yes / no): " success
 
-  cecho "Enroll a secret key to existing LUKS encrypted volume using TPM 2.0"
-  tpm2luks-enroll -d /dev/sda2
+  if [ "$success" == "yes" ]; then
+    cecho "Install the tpm 2.0 tools"
+    pacman -S tpm2-tools tpm2-tss tpm2-abrmd
+    git clone https://github.com/saravanan30erd/tpm2luks
+    cd tpm2luks
+    make install
 
-  cecho "Enable tpm2luks in mkinitcpio"
-  sed -i '/^HOOKS/s/encrypt /encrypt tpm2luks /' /etc/mkinitcpio.conf
+    sed -i 's,TPM2_LUKS_DEV="",TPM2_LUKS_DEV="/dev/sda2",' /etc/tpm2luks.conf
 
-  cecho "Regenerate the initramfs"
-  tpm2luks-load
+    cecho "Print tpm2luks conf before proceed further"
+    cat /etc/tpm2luks.conf
+
+    read -p "Is it OK to proceed further? (yes / no): " proceed
+    if [ "$proceed" == "yes" ]; then
+      cecho "Enroll a secret key to existing LUKS encrypted volume using TPM 2.0"
+      tpm2luks-enroll -d /dev/sda2
+
+      cecho "Enable tpm2luks in mkinitcpio"
+      sed -i '/^HOOKS/s/encrypt /tpm2luks encrypt /' /etc/mkinitcpio.conf
+
+      cecho "Regenerate the initramfs"
+      tpm2luks-load
+      cd ../
+    fi
+  else
+    cecho "!!! Please enable the TPM2.0 in BIOS settings !!!"
+    cecho "Refer here: https://github.com/saravanan30erd/tpm2luks"
+    exit 1
+  fi
 }
 
 root_partition_solokey() {
@@ -257,10 +276,10 @@ root_partition_solokey() {
     sed -i '/^HOOKS/s/encrypt /skfde encrypt /' /etc/mkinitcpio.conf
     skfde-load
   else
-    cd ../
     cecho "!!! Please check the skfde configuration !!!"
     exit 1
   fi
+  cd ../
 }
 
 install_cinnamon_xorg() {
