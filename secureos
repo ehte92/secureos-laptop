@@ -227,8 +227,8 @@ root_partition_solokey() {
   cd fido2luks
   cargo install -f --path . --root /usr
   cd ../
-  rustup install stable
-  rustup default stable
+  #rustup install stable
+  #rustup default stable
 
   cecho "Install the solokey tool"
   git clone https://github.com/saravanan30erd/solokey-full-disk-encryption
@@ -251,11 +251,13 @@ root_partition_solokey() {
   cecho "Enable skfde initramfs hook"
   sed -i '/^HOOKS/s/encrypt /encrypt skfde /' /etc/mkinitcpio.conf
   skfde-load
+  cd ../
 }
 
 install_cinnamon_xorg() {
   cecho "Install the cinnamon desktop and lxdm display server"
 
+  pacman-key --refresh-keys
   pacman -S xorg cinnamon nemo-fileroller lxdm
   systemctl enable lxdm.service
 }
