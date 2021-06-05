@@ -253,6 +253,13 @@ root_partition_solokey() {
   skfde-load
 }
 
+install_cinnamon_xorg() {
+  cecho "Install the cinnamon desktop and lxdm display server"
+
+  pacman -S xorg cinnamon nemo-fileroller lxdm
+  systemctl enable lxdm.service
+}
+
 ## Main
 
 case "$1" in
@@ -280,6 +287,9 @@ case "$1" in
   solokey)
     root_partition_solokey;
     ;;
+  install-ui)
+    install_cinnamon_xorg;
+    ;;
   *)
     echo "  install     Arch Linux Installation with LUKS - Part 1"
     echo "  install-chroot     Arch Linux Installation with LUKS - Part 2"
@@ -289,5 +299,6 @@ case "$1" in
     echo "  random-mac    Configure MAC address randomization"
     echo "  tpm2luks    Encrypt the boot partition using TPM 2.0"
     echo "  solokey   Encrypt the root partition using SoloKey"
+    echo "  install-ui    Install the cinnamon desktop and lxdm display server"
     ;;
 esac
