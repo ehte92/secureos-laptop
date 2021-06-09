@@ -12,7 +12,10 @@ by pressing `F12`.
 
 3. You should be logged into the Arch Linux console. You can install Arch Linux from here.
 
-Note: You need to use `nmcli` command to manually connect the Wi-Fi at this stage.
+Note: You need to use `iwctl` command to manually connect the Wi-Fi at this stage.
+Note: Use the below commands to install prerequisites
+  pacman -Sy
+  pacman -S git glibc
 
 4. Clone the SecureOS script in the system.
 ```
@@ -53,13 +56,17 @@ Also you need to repeat the step 4.
 ```
 
 10. Encrypt the root partition using SoloKey.
-Note: Refer [here](https://github.com/saravanan30erd/secureboot) for prerequisites
 ```
   ./secureos solokey
 ```
-Reboot and login the system using SoloKey
+Reboot and login the system using SoloKey.
+Once the SoloKey authentication works, please remove the weak manual password we set for `/dev/sda3`.
+```
+cryptsetup luksRemoveKey /dev/sda3
+```
 
 11. Enable Secure Boot in UEFI.
+Note: Refer [here](https://github.com/saravanan30erd/secureboot) for prerequisites
 ```
   ./secureos secure-boot
 ```
