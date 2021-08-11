@@ -13,6 +13,13 @@ by pressing `F12`.
 3. You should be logged into the Arch Linux console. You can install Arch Linux from here.
 
 Note: You need to use `iwctl` command to manually connect the Wi-Fi at this stage.
+```
+  $ iwctl
+  [iwd]# device list
+  [iwd]# station [device] scan
+  [iwd]# station [device] get-networks
+  [iwd]# staion [device] connect [SSID]
+```
 Note: Use the below commands to install prerequisites
   pacman -Sy
   pacman -S git glibc
