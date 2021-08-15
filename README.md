@@ -14,6 +14,8 @@ by pressing `F12`.
 
 Note: You need to use `iwctl` command to manually connect the Wi-Fi at this stage.
 ```
+  $ setfont iso01-12x22.psfu.gz
+  
   $ iwctl
   [iwd]# device list
   [iwd]# station [device] scan
@@ -21,12 +23,13 @@ Note: You need to use `iwctl` command to manually connect the Wi-Fi at this stag
   [iwd]# staion [device] connect [SSID]
 ```
 Note: Use the below commands to install prerequisites
-  pacman -Sy
-  pacman -S git glibc
-
+  ```
+  $ pacman -Sy
+  $ pacman -S git glibc
+  ```
 4. Clone the SecureOS script in the system.
 ```
-  git clone https://github.com/saravanan30erd/SecureOS
+  git clone https://github.com/saravanan30erd/SecureOS # on local network http://192.168.2.84/secure-laptop/secureos.git
   cd SecureOS
   chmod +x secureos
 ```
