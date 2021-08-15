@@ -3,7 +3,7 @@
 set -euo pipefail
 
 ## Variables
-DISK="/dev/sda"
+DISK="/dev/nvme0n1"
 HOSTNAME="Arch"
 ## Functions
 
@@ -34,22 +34,22 @@ arch_install_before_chroot() {
 
   cecho "Encrypt the boot partition"
   cecho "Please provide the passphrase to encrypt the boot partition"
-  cryptsetup luksFormat --type luks1 /dev/sda2
+  cryptsetup luksFormat --type luks1 /dev/nvme0n1p2
 
   cecho "Open the encrypted boot partition"
   cecho "Please provide the passphrase to open the encrypted boot partition"
-  cryptsetup open /dev/sda2 luks_boot
+  cryptsetup open /dev/nvme0n1p2 luks_boot
 
   cecho "Encrypt the root partition"
   cecho "Please provide the passphrase to encrypt the root partition"
-  cryptsetup luksFormat -v -s 512 -h sha512 /dev/sda3
+  cryptsetup luksFormat -v -s 512 -h sha512 /dev/nvme0n1p3
 
   cecho "Open the encrypted root partition"
   cecho "Please provide the passphrase to open the encrypted root partition"
-  cryptsetup open /dev/sda3 luks_root
+  cryptsetup open /dev/nvme0n1p3 luks_root
 
   cecho "Format the Partitions"
-  mkfs.vfat -n "EFI" /dev/sda1
+  mkfs.vfat -n "EFI" /dev/nvme0n1p1
   mkfs.ext4 -L boot /dev/mapper/luks_boot
   mkfs.ext4 -L root /dev/mapper/luks_root
 
@@ -58,7 +58,7 @@ arch_install_before_chroot() {
   mkdir /mnt/boot
   mount /dev/mapper/luks_boot /mnt/boot
   mkdir /mnt/boot/efi
-  mount /dev/sda1 /mnt/boot/efi
+  mount /dev/nvme0n1p1 /mnt/boot/efi
 
   cecho "Install the linux packages"
   pacman-key --refresh-keys
@@ -100,7 +100,7 @@ arch_install_after_chroot() {
   echo "::1 localhost" >> /etc/hosts
 
   cecho "Configure GRUB settings with LUKS encryption"
-  sed -i 's,GRUB_CMDLINE_LINUX="",GRUB_CMDLINE_LINUX="cryptdevice=/dev/sda3:luks_root",g' /etc/default/grub
+  sed -i 's,GRUB_CMDLINE_LINUX="",GRUB_CMDLINE_LINUX="cryptdevice=/dev/nvme0n1p3:luks_root",g' /etc/default/grub
   sed -i '/^#GRUB_ENABLE_CRYPTODISK/s/^#//' /etc/default/grub
 
   cecho "Enable luks in mkinitcpio"
@@ -114,8 +114,8 @@ arch_install_after_chroot() {
   cecho "It is necessary to unlock the boot partition without manual password request"
   dd bs=512 count=8 if=/dev/urandom of=/etc/key
   chmod 400 /etc/key
-  cryptsetup luksAddKey /dev/sda2 /etc/key
-  echo "luks_boot /dev/sda2 /etc/key luks" >> /etc/crypttab
+  cryptsetup luksAddKey /dev/nvme0n1p2 /etc/key
+  echo "luks_boot /dev/nvme0n1p2 /etc/key luks" >> /etc/crypttab
 
   cecho "Some additional security"
   chmod 700 /boot
@@ -215,7 +215,7 @@ boot_partition_tpm2luks() {
     cd tpm2luks
     make install
 
-    sed -i 's,TPM2_LUKS_DEV="",TPM2_LUKS_DEV="/dev/sda2",' /etc/tpm2luks.conf
+    sed -i 's,TPM2_LUKS_DEV="",TPM2_LUKS_DEV="/dev/nvme0n1p2",' /etc/tpm2luks.conf
 
     cecho "Print tpm2luks conf before proceed further"
     cat /etc/tpm2luks.conf
@@ -223,7 +223,7 @@ boot_partition_tpm2luks() {
     read -p "Is it OK to proceed further? (yes / no): " proceed
     if [ "$proceed" == "yes" ]; then
       cecho "Enroll a secret key to existing LUKS encrypted volume using TPM 2.0"
-      tpm2luks-enroll -d /dev/sda2
+      tpm2luks-enroll -d /dev/nvme0n1p2
 
       cecho "Enable tpm2luks in mkinitcpio"
       sed -i '/^HOOKS/s/encrypt /tpm2luks encrypt /' /etc/mkinitcpio.conf
@@ -262,7 +262,7 @@ root_partition_solokey() {
   CHALLENGE="$(openssl rand -base64 12)"
   sed -i "s,SKFDE_CHALLENGE=\"\",SKFDE_CHALLENGE=$CHALLENGE," /etc/skfde.conf
 
-  sed -i 's,SKFDE_LUKS_DEV="",SKFDE_LUKS_DEV="/dev/sda3",' /etc/skfde.conf
+  sed -i 's,SKFDE_LUKS_DEV="",SKFDE_LUKS_DEV="/dev/nvme0n1p3",' /etc/skfde.conf
 
   cecho "Print skfde conf before proceed further"
   cat /etc/skfde.conf
@@ -270,7 +270,7 @@ root_partition_solokey() {
   read -p "Is it OK to proceed further? (yes / no): " success
   if [ "$success" == "yes" ]; then
     cecho "Enroll solokey passphrase to existing LUKS encrypted volume"
-    skfde-enroll -d /dev/sda3
+    skfde-enroll -d /dev/nvme0n1p3
 
     cecho "Enable skfde initramfs hook"
     sed -i '/^HOOKS/s/encrypt /skfde encrypt /' /etc/mkinitcpio.conf
