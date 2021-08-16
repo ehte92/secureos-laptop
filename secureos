@@ -61,7 +61,8 @@ arch_install_before_chroot() {
   mount /dev/nvme0n1p1 /mnt/boot/efi
 
   cecho "Install the linux packages"
-  pacman-key --refresh-keys
+  # pacman-key --refresh-keys
+  pacman -S archlinux-keyring
   pacstrap -i /mnt base linux linux-firmware
 
   cecho "Generate the fstab configuration file"
