@@ -53,6 +53,10 @@ Reboot the system and enter into the newly installed Arch Linux system.
 You can use `nmcli` command to manually connect the Wi-Fi at this stage.
 Also you need to repeat the step 4.
 
+```
+   nmcli device wifi connect [SSID] password [WiFi Password]
+```
+
 7. Automatically reboot if any USB device is removed from the system.
 ```
   ./secureos usb-auto-reboot
