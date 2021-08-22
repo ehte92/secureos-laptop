@@ -21,6 +21,9 @@ Note: You need to use `iwctl` command to manually connect the Wi-Fi at this stag
   [iwd]# station [device] scan
   [iwd]# station [device] get-networks
   [iwd]# staion [device] connect [SSID]
+
+  # onliner
+  $ iwctl --passphrase [password] station [device] connect [SSID]
 ```
 Note: Use the below commands to install prerequisites
   ```
