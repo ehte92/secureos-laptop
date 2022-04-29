@@ -93,3 +93,4 @@ Reboot and verify the secure boot status using `bootctl status`
 ```
   ./secureos tpm2luks
 ```
+# secureos-laptop
